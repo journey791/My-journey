@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Trade Card Journal — Two Screenshots (Full)</title>
+<style>
+  :root{
+    --bg:#071025; --card:#0b1220; --muted:#95a0b8; --accent:#39b4a3; --danger:#ff6b6b; --glass: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family: Inter, system-ui, Arial, sans-serif;
+    margin:0; padding:18px; color:#e6eef6;
+    background: linear-gradient(180deg,#071025 0%, #071827 100%);
+  }
+  header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  header h1{font-size:18px;margin:0}
+  .layout{display:grid;grid-template-columns:380px 1fr;gap:18px}
+  .panel{background:var(--card); padding:14px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.5);}
+  label{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+  input[type="text"], input[type="number"], select, textarea, input[type="date"], input[type="time"], input[type="file"]{
+    width:100%; padding:8px 10px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);
+    background:var(--glass); color:inherit; font-size:13px; outline:none;
+  }
+  textarea{min-height:72px;resize:vertical}
+  .row{display:flex;gap:8px}
+  .row > *{flex:1}
+  .btn{display:inline-block;padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#042425;font-weight:700;cursor:pointer;margin-top:10px}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .btn.danger{background:var(--danger); color:#fff}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);
+    display:flex;flex-direction:column;
+  }
+  .meta{display:flex;align-items:center;justify-content:space-between}
+  .pair{font-weight:700}
+  .chip{padding:4px 8px;border-radius:8px;font-size:12px}
+  .buy{background:rgba(57,180,163,0.12); color:var(--accent)}
+  .sell{background:rgba(255,107,107,0.08); color:var(--danger)}
+  .screenshots{display:flex;gap:8px;margin-top:8px}
+  .screenshot{flex:1;max-width:50%;border-radius:8px;background:#071425;padding:6px;object-fit:contain;max-height:220px;width:100%}
+  .trade-notes{margin-top:8px}
+  .trade-notes div{margin-bottom:6px}
+  .small-muted{font-size:12px;color:var(--muted)}
+  .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .stat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-width:120px}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  footer{margin-top:14px;color:var(--muted);font-size:12px}
+  .warn{font-size:12px;color:#ffb86b;margin-top:6px}
+  .pnl{
+    font-weight:700;
+  }
+  .pnl.positive{
+    color:#39b4a3;
+  }
+  .pnl.negative{
+    color:#ff6b6b;
+  }
+  @media (max-width:920px){ .layout{grid-template-columns:1fr} .screenshots{flex-direction:column} .screenshot{max-width:100%} }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Trade Card Journal — Two Screenshots (Full)</h1>
+    <div class="small-muted">Every trade = card. Two screenshots (higher TF + execution TF), notes under images, filters & export.</div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- LEFT: form & controls -->
+  <div class="panel" id="leftPanel">
+    <form id="tradeForm">
+      <label>Date</label>
+      <input type="date" id="date" required />
+
+      <label>Time entered</label>
+      <input type="time" id="time" required />
+
+      <label>Pair</label>
+      <input type="text" id="pair" placeholder="e.g. EUR/USD" required />
+
+      <div class="row">
+        <div>
+          <label>Position</label>
+          <select id="position">
+            <option value="Buy">Buy</option>
+            <option value="Sell">Sell</option>
+          </select>
+        </div>
+        <div>
+          <label>Confidence (1–10)</label>
+          <input type="number" id="confidence" min="1" max="10" value="5" />
+        </div>
+      </div>
+
+      <label>Reason (short)</label>
+      <input type="text" id="reason" placeholder="Breakout, reversal, news..." />
+
+      <label>Chart Comment</label>
+      <input type="text" id="chartComment" placeholder="e.g. resistance flip, wick rejection" />
+
+      <label>Description (context)</label>
+      <textarea id="description" placeholder="What happened, session, news, bias..."></textarea>
+
+      <div class="row">
+        <div>
+          <label>PnL (pips or $) — use + for win, - for loss</label>
+          <input type="number" id="pnl" step="0.1" placeholder="e.g. 12.5 or -8" />
+        </div>
+        <div>
+          <label>Tags (comma separated)</label>
+          <input type="text" id="tags" placeholder="e.g. breakout, news, scalping" />
+        </div>
+      </div>
+
+      <label>Screenshot 1 — Higher TF (attach image)</label>
+      <input type="file" id="screenshot1" accept="image/*" />
+
+      <label>Screenshot 2 — Execution TF (attach image)</label>
+      <input type="file" id="screenshot2" accept="image/*" />
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn" id="saveBtn" type="submit">Save Trade</button>
+        <button class="btn ghost" type="button" id="clearBtn">Clear</button>
+        <div class="warn" id="storageWarn" style="display:none">Large images may fill browser storage — export JSON backup regularly.</div>
+      </div>
+    </form>
+
+    <hr style="margin:12px 0;border:0;height:1px;background:rgba(255,255,255,0.03)" />
+
+    <div>
+      <div class="small-muted">Backup / Import</div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn ghost" id="exportJsonBtn">Export JSON</button>
+        <button class="btn ghost" id="exportCsvBtn">Export CSV</button>
+        <input type="file" id="importFile" style="display:inline-block" />
+      </div>
+      <div class="small-muted" style="margin-top:8px">
+        Tip: export JSON to keep screenshots; CSV is smaller but will not embed images.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: filters, stats, cards -->
+  <div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:220px">
+          <div class="small-muted">Filters / Search</div>
+          <div class="filter-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <input type="date" id="fromDate" placeholder="From date"/>
+            <input type="date" id="toDate" placeholder="To date"/>
+            <input type="text" id="filterPair" placeholder="Filter pair"/>
+            <select id="filterResult" title="Show all, wins only or losses only">
+              <option value="all">All</option>
+              <option value="win">Wins</option>
+              <option value="loss">Losses</option>
+            </select>
+            <input type="text" id="globalSearch" placeholder="Search text..."/>
+          </div>
+        </div>
+        <div style="min-width:220px;">
+          <div class="small-muted">Quick Date Filters</div>
+          <div class="filter-row" style="margin-top:4px;">
+            <button class="btn ghost" id="last7Btn">Last 7 days</button>
+            <button class="btn ghost" id="last30Btn">Last 30 days</button>
+            <button class="btn ghost" id="allBtn">All</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats" id="statsArea"></div>
+
+      <div class="cards" id="cardsContainer" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Developed by ChatGPT &bull; Save your backups often! &bull; Works offline
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  // Utilities
+  const el = id => document.getElementById(id);
+  const formatDate = d => d.toISOString().slice(0,10);
+  const daysAgoDate = days => {
+    const d = new Date();
+    d.setDate(d.getDate()-days);
+    return formatDate(d);
+  };
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+  const debounce = (fn, ms) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), ms);
+    };
+  };
+
+  // Main Data Store
+  let trades = JSON.parse(localStorage.getItem("trades") || "[]");
+
+  // Elements
+  const tradeForm = el("tradeForm");
+  const cardsContainer = el("cardsContainer");
+  const statsArea = el("statsArea");
+  const storageWarn = el("storageWarn");
+  const exportJsonBtn = el("exportJsonBtn");
+  const exportCsvBtn = el("exportCsvBtn");
+  const importFile = el("importFile");
+  const clearBtn = el("clearBtn");
+  const filterPair = el("filterPair");
+  const filterResult = el("filterResult");
+  const globalSearch = el("globalSearch");
+  const fromDate = el("fromDate");
+  const toDate = el("toDate");
+  const last7Btn = el("last7Btn");
+  const last30Btn = el("last30Btn");
+  const allBtn = el("allBtn");
+
+  // Form fields
+  const dateF = el("date");
+  const timeF = el("time");
+  const pairF = el("pair");
+  const positionF = el("position");
+  const confidenceF = el("confidence");
+  const reasonF = el("reason");
+  const chartCommentF = el("chartComment");
+  const descriptionF = el("description");
+  const pnlF = el("pnl");
+  const tagsF = el("tags");
+  const screenshot1F = el("screenshot1");
+  const screenshot2F = el("screenshot2");
+
+  // Save trade to localStorage
+  function saveTrades() {
+    localStorage.setItem("trades", JSON.stringify(trades));
+    checkStorageSize();
+  }
+
+  // Check localStorage usage warning
+  function checkStorageSize(){
+    try {
+      const used = new Blob([localStorage.getItem("trades") || ""]).size;
+      // Warn if > 3.5 MB (approximate, varies by browser)
+      if(used > 3.5 * 1024 * 1024){
+        storageWarn.style.display = "block";
+      } else {
+        storageWarn.style.display = "none";
+      }
+    } catch {
+      storageWarn.style.display = "none";
+    }
+  }
+
+  // Read image file input to base64 string (promise)
+  function readImage(input) {
+    return new Promise(res => {
+      const file = input.files[0];
+      if(!file) return res(null);
+      const reader = new FileReader();
+      reader.onload = e => res(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Create DOM card for a trade
+  function createCard(t, idx) {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.setAttribute("tabindex","0");
+    card.setAttribute("aria-label", `Trade for ${t.pair} on ${t.date} at ${t.time}, position ${t.position}, PnL ${t.pnl}`);
+
+    // PnL color class
+    let pnlClass = "";
+    const pnlNum = parseFloat(t.pnl);
+    if(!isNaN(pnlNum)){
+      pnlClass = pnlNum >= 0 ? "positive" : "negative";
+    }
+
+    card.innerHTML = `
+      <div class="meta">
+        <div>
+          <div class="pair">${t.pair}</div>
+          <div class="small-muted">${t.date} ${t.time}</div>
+        </div>
+        <div class="chip ${t.position.toLowerCase()}">${t.position}</div>
+      </div>
+      <div class="screenshots" aria-label="Screenshots attached to trade">
+        ${t.screenshot1 ? `<img src="${t.screenshot1}" class="screenshot" alt="Screenshot 1 for trade ${idx+1}">` : ""}
+        ${t.screenshot2 ? `<img src="${t.screenshot2}" class="screenshot" alt="Screenshot 2 for trade ${idx+1}">` : ""}
+      </div>
+      <div class="trade-notes" aria-label="Trade notes">
+        <div><strong>Reason:</strong> ${t.reason || "-"}</div>
+        <div><strong>Chart Comment:</strong> ${t.chartComment || "-"}</div>
+        <div><strong>Description:</strong> ${t.description || "-"}</div>
+        <div><strong>PnL:</strong> <span class="pnl ${pnlClass}">${t.pnl || "-"}</span></div>
+        <div><strong>Confidence:</strong> ${t.confidence || "-"}</div>
+        <div><strong>Tags:</strong> ${t.tags ? t.tags.split(",").map(s=>s.trim()).filter(Boolean).join(", ") : "-"}</div>
+      </div>
+      <div class="actions" aria-label="Trade card actions">
+        <button class="btn ghost" data-action="edit" data-idx="${idx}" aria-label="Edit trade">✏️ Edit</button>
+        <button class="btn ghost" data-action="duplicate" data-idx="${idx}" aria-label="Duplicate trade">📄 Duplicate</button>
+        ${t.screenshot1 ? `<button class="btn ghost" data-action="download1" data-idx="${idx}" aria-label="Download screenshot 1">⬇️ DL Img 1</button>` : ""}
+        ${t.screenshot2 ? `<button class="btn ghost" data-action="download2" data-idx="${idx}" aria-label="Download screenshot 2">⬇️ DL Img 2</button>` : ""}
+        <button class="btn danger" data-action="delete" data-idx="${idx}" aria-label="Delete trade">🗑️ Delete</button>
+      </div>
+    `;
+    return card;
+  }
+
+  // Render all trades with current filters/search applied
+  function renderTrades() {
+    const fPair = filterPair.value.trim().toLowerCase();
+    const fResult = filterResult.value;
+    const fSearch = globalSearch.value.trim().toLowerCase();
+    const fFrom = fromDate.value;
+    const fTo = toDate.value;
+
+    let filtered = trades.filter(t => {
+      // Filter pair
+      if(fPair && !t.pair.toLowerCase().includes(fPair)) return false;
+
+      // Filter result (win/loss/all)
+      const pnlNum = parseFloat(t.pnl);
+      if(fResult === "win" && (isNaN(pnlNum) || pnlNum <= 0)) return false;
+      if(fResult === "loss" && (isNaN(pnlNum) || pnlNum >= 0)) return false;
+
+      // Filter date range
+      if(fFrom && t.date < fFrom) return false;
+      if(fTo && t.date > fTo) return false;
+
+      // Global search in reason, chartComment, description, tags
+      if(fSearch){
+        const haystack = [
+          t.reason, t.chartComment, t.description,
+          t.pair, t.position,
+          t.tags || ""
+        ].join(" ").toLowerCase();
+        if(!haystack.includes(fSearch)) return false;
+      }
+
+      return true;
+    });
+
+    // Sort by date/time descending
+    filtered.sort((a,b) => {
+      if(a.date === b.date) return a.time < b.time ? 1 : -1;
+      return a.date < b.date ? 1 : -1;
+    });
+
+    // Stats
+    renderStats(filtered);
+
+    cardsContainer.innerHTML = "";
+    if(filtered.length === 0){
+      cardsContainer.innerHTML = `<p>No trades match filters.</p>`;
+      return;
+    }
+    filtered.forEach((t,i) => cardsContainer.appendChild(createCard(t,i)));
+  }
+
+  // Render stats summary
+  function renderStats(filtered){
+    if(!filtered.length){
+      statsArea.innerHTML = `<div class="stat">No trades to show stats.</div>`;
+      return;
+    }
+    const total = filtered.length;
+    let wins=0, losses=0, pnlSum=0, confSum=0;
+    filtered.forEach(t => {
+      const pnlNum = parseFloat(t.pnl);
+      if(!isNaN(pnlNum)){
+        pnlSum += pnlNum;
+        if(pnlNum > 0) wins++;
+        else if(pnlNum < 0) losses++;
+      }
+      const confNum = parseFloat(t.confidence);
+      if(!isNaN(confNum)) confSum += confNum;
+    });
+    const avgConf = (confSum / total).toFixed(1);
+    const winRate = (wins / total * 100).toFixed(1);
+
+    statsArea.innerHTML = `
+      <div class="stat">Total trades: <strong>${total}</strong></div>
+      <div class="stat">Wins: <strong>${wins}</strong></div>
+      <div class="stat">Losses: <strong>${losses}</strong></div>
+      <div class="stat">Win rate: <strong>${winRate}%</strong></div>
+      <div class="stat">Total PnL: <strong>${pnlSum.toFixed(2)}</strong></div>
+      <div class="stat">Avg Confidence: <strong>${avgConf}</strong></div>
+    `;
+  }
+
+  // Clear form inputs
+  function clearForm(){
+    tradeForm.reset();
+  }
+
+  // Fill form with trade data for editing
+  function fillForm(t){
+    dateF.value = t.date || "";
+    timeF.value = t.time || "";
+    pairF.value = t.pair || "";
+    positionF.value = t.position || "Buy";
+    confidenceF.value = t.confidence || "";
+    reasonF.value = t.reason || "";
+    chartCommentF.value = t.chartComment || "";
+    descriptionF.value = t.description || "";
+    pnlF.value = t.pnl || "";
+    tagsF.value = t.tags || "";
+    screenshot1F.value = "";
+    screenshot2F.value = "";
+  }
+
+  // Handle form submit - add or update trade
+  let editingIndex = null;
+  tradeForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    // Read screenshots as base64
+    const img1 = await readImage(screenshot1F);
+    const img2 = await readImage(screenshot2F);
+
+    // Compose trade object
+    const trade = {
+      date: dateF.value,
+      time: timeF.value,
+      pair: pairF.value.trim(),
+      position: positionF.value,
+      confidence: confidenceF.value.trim(),
+      reason: reasonF.value.trim(),
+      chartComment: chartCommentF.value.trim(),
+      description: descriptionF.value.trim(),
+      pnl: pnlF.value.trim(),
+      tags: tagsF.value.trim(),
+      // If editing and no new image chosen, keep old image:
+      screenshot1: img1 || (editingIndex !== null ? trades[editingIndex].screenshot1 : null),
+      screenshot2: img2 || (editingIndex !== null ? trades[editingIndex].screenshot2 : null),
+    };
+
+    // Validate minimal fields
+    if(!trade.date || !trade.time || !trade.pair){
+      alert("Please fill Date, Time, and Pair fields.");
+      return;
+    }
+
+    if(editingIndex === null){
+      trades.push(trade);
+    } else {
+      trades[editingIndex] = trade;
+      editingIndex = null;
+    }
+
+    saveTrades();
+    clearForm();
+    renderTrades();
+  });
+
+  // Handle clear form button
+  clearBtn.addEventListener("click", () => {
+    editingIndex = null;
+    clearForm();
+  });
+
+  // Cards action handler (edit/delete/duplicate/download)
+  cardsContainer.addEventListener("click", e => {
+    if(!e.target.matches("button[data-action]")) return;
+    const action = e.target.dataset.action;
+    const idx = +e.target.dataset.idx;
+    if(idx < 0 || idx >= trades.length) return;
+
+    if(action === "edit"){
+      editingIndex = idx;
+      fillForm(trades[idx]);
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+    else if(action === "delete"){
+      if(confirm("Delete this trade?")) {
+        trades.splice(idx,1);
+        saveTrades();
+        renderTrades();
+      }
+    }
+    else if(action === "duplicate"){
+      const copy = clone(trades[idx]);
+      // Make date/time current
+      const now = new Date();
+      copy.date = formatDate(now);
+      copy.time = now.toTimeString().slice(0,5);
+      trades.push(copy);
+      saveTrades();
+      renderTrades();
+    }
+    else if(action === "download1"){
+      if(trades[idx].screenshot1){
+        downloadImage(trades[idx].screenshot1, `trade_${idx+1}_screenshot1.png`);
+      }
+    }
+    else if(action === "download2"){
+      if(trades[idx].screenshot2){
+        downloadImage(trades[idx].screenshot2, `trade_${idx+1}_screenshot2.png`);
+      }
+    }
+  });
+
+  // Download base64 image helper
+  function downloadImage(dataUrl, filename){
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // Export JSON
+  exportJsonBtn.addEventListener("click", () => {
+    const dataStr = JSON.stringify(trades, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "trade_journal_backup.json";
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+  });
+
+  // Export CSV (no images)
+  exportCsvBtn.addEventListener("click", () => {
+    const keys = ["date","time","pair","position","confidence","reason","chartComment","description","pnl","tags"];
+    const csvRows = [];
+    csvRows.push(keys.join(","));
+    trades.forEach(t => {
+      const row = keys.map(k => {
+        let val = t[k] || "";
+        val = val.toString().replace(/"/g, '""'); // escape quotes
+        if(val.includes(",") || val.includes("\n")) val = `"${val}"`;
+        return val;
+      });
+      csvRows.push(row.join(","));
+    });
+    const csvStr = csvRows.join("\n");
+    const blob = new Blob([csvStr], {type: "text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "trade_journal.csv";
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+  });
+
+  // Import JSON backup
+  importFile.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      try {
+        const data = JSON.parse(evt.target.result);
+        if(Array.isArray(data)){
+          if(confirm("Importing will overwrite all existing trades. Continue?")){
+            trades = data;
+            saveTrades();
+            renderTrades();
+            alert("Import successful!");
+          }
+        } else {
+          alert("Invalid JSON format.");
+        }
+      } catch {
+        alert("Failed to parse JSON file.");
+      }
+      importFile.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  // Filters event handlers (debounced)
+  const doFilter = debounce(renderTrades, 300);
+  filterPair.addEventListener("input", doFilter);
+  filterResult.addEventListener("change", doFilter);
+  globalSearch.addEventListener("input", doFilter);
+  fromDate.addEventListener("change", doFilter);
+  toDate.addEventListener("change", doFilter);
+
+  // Quick date filter buttons
+  last7Btn.addEventListener("click", () => {
+    fromDate.value = daysAgoDate(7);
+    toDate.value = formatDate(new Date());
+    doFilter();
+  });
+  last30Btn.addEventListener("click", () => {
+    fromDate.value = daysAgoDate(30);
+    toDate.value = formatDate(new Date());
+    doFilter();
+  });
+  allBtn.addEventListener("click", () => {
+    fromDate.value = "";
+    toDate.value = "";
+    doFilter();
+  });
+
+  // Init default dates for quick filter buttons (optional)
+  // fromDate.value = "";
+  // toDate.value = "";
+
+  // Initial render & storage check
+  renderTrades();
+  checkStorageSize();
+
+})();
+</script>
+</body>
+</html>
